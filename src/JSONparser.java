@@ -5,17 +5,16 @@ public class JSONparser {
 
     APIhandler api = new APIhandler();
 
-    public String find(String stock, String keyword){
+    public String find(String stock, String keyword, String JSON){
         APIhandler api = new APIhandler();
-        String JSON = api.getQuote(stock);
+
         int cursor = 0;
         int iterate = 1;
 
-        ArrayList<Integer> indexes = new ArrayList<Integer>();
 
             do {
                 if(JSON.contains(keyword)) {
-                    cursor = JSON.indexOf(keyword, cursor);
+                    cursor = JSON.indexOf(keyword);
 
                     //gets length of keyword answer
                     while (JSON.charAt(cursor + keyword.length() + 2 + iterate) != ',') {
@@ -40,8 +39,11 @@ public class JSONparser {
 
     };
 
-    public double[] getBidAsk(String Stock){
-        return new double[] {Double.parseDouble(find(Stock, "bid")), Double.parseDouble(find(Stock, "ask"))};
+    public double[] getBidAsk(String stock){
+        String JSON = api.getQuote(stock);
+        return new double[] {Double.parseDouble(find(stock, "bid", JSON)), Double.parseDouble(find(stock, "ask", JSON))};
     }
+
+
 
 }
