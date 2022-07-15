@@ -41,9 +41,27 @@ public class JSONparser {
 
     public double[] getBidAsk(String stock){
         String JSON = api.getQuote(stock);
-        return new double[] {Double.parseDouble(find(stock, "bid", JSON)), Double.parseDouble(find(stock, "ask", JSON))};
+        String bid = find(stock, "bid", JSON);
+        String ask = find(stock, "ask", JSON);
+        //error checking
+        if (isDouble(bid) && isDouble(ask)) {
+            return new double[] {Double.parseDouble(bid), Double.parseDouble(ask)};
+        }else {
+            //return -1 for error
+            return new double[]{-1, -1};
+        }
+
     }
 
-
-
+    public boolean isDouble(String val){
+        if (val == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(val);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
 }
