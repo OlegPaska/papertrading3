@@ -21,9 +21,11 @@ public class APIhandler {
         return response.body();
     }
 
-    public String getQuote(String Stock)  {
+    //TODO: add region=GB to this without it crying about illegal character
+    //TODO: nvm the whole thing broke
+    public String getQuote(String ticker)  {
         try {
-            return get("https://yfapi.net/v6/finance/quote?symbols="+Stock);
+            return get("https://yfapi.net/v6/finance/quote?symbols="+ticker);
 
         } catch(Exception e){
             System.out.println("ERROR: error getting API quote data");

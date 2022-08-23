@@ -2,20 +2,48 @@ public class Stock {
     JSONparser jason = new JSONparser();
     APIhandler api = new APIhandler();
     String ticker;
+    String name;
 
-    //TODO: make it check wether the ticker is valid by making new method
-    //TODO: add all the functions from the uml diagram
-    //TODO: make first api call build a profile of the stock w/ name etc
+
+    //TODO: test the stock validation
+
     public Stock(String ticker){
         this.ticker = ticker;
+        String JSONdata = api.getQuote(ticker);
+        if(validateTicker(JSONdata)){
+            name = jason.find(ticker, "displayName", JSONdata);
+        }
+        System.out.println(name);
     }
+
 
     public boolean validateTicker(){
         //checks if api fails to get price
-
-        if(api.getQuote(ticker) != null){
+        //makes new api call
+        String data = api.getQuote(ticker);
+        if(data != null){
             return true;
         }
         return false;
     }
+    public boolean validateTicker(String data){
+        //checks if api fails to get price
+        //validation is done when constructing stock profile and in the order class
+        //api call needed externally
+        if(data != null){
+            return true;
+        }
+        return false;
+    }
+
+    public double[] getPrice(){
+        return jason.getBidAsk(api.getQuote(ticker));
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public String getTicker(){return ticker;}
+
 }
