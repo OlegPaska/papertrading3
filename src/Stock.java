@@ -11,9 +11,8 @@ public class Stock {
         this.ticker = ticker;
         String JSONdata = api.getQuote(ticker);
         if(validateTicker(JSONdata)){
-            name = jason.find(ticker, "displayName", JSONdata);
+            name = jason.find(ticker, "longName", JSONdata);
         }
-        System.out.println(name);
     }
 
 
@@ -37,7 +36,7 @@ public class Stock {
     }
 
     public double[] getPrice(){
-        return jason.getBidAsk(api.getQuote(ticker));
+        return jason.getBidAsk(ticker);
     }
 
     public String getName(){

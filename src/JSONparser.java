@@ -53,6 +53,7 @@ public class JSONparser {
 
     }
 
+    //i copied this
     public boolean isDouble(String val){
         if (val == null) {
             return false;

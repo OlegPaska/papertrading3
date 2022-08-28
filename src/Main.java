@@ -11,9 +11,10 @@ public class Main {
 //        Stock stock = new Stock("AAPL");
 
         Portfolio portfolio = new Portfolio(20000);
-        TimeUnit.SECONDS.sleep(1);
-        portfolio.buyOrder("HSBA.L", new double[]{-1,-1});
 
+        portfolio.buyOrder("HSBA.L", new double[]{-1,-1});
+        //TimeUnit.SECONDS.sleep(60);
+        portfolio.diplayOrders();
 
 
         //System.out.println(API.getQuote(""));

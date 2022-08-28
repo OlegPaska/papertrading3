@@ -40,7 +40,7 @@ public class Order {
     }
 
     public double getPnL(){
-        return buyPrice[1] - currentPrice[0];
+        return currentPrice[0] - buyPrice[1];
     }
 
 
