@@ -1,7 +1,10 @@
+package Market;
+
 public class Order {
 
     Stock stock;
     double[] buyPrice = new double[1];
+    double buyPositionSize;
     double[] currentPrice = new double[1];
     long buyTime;
     //stop loss/take profit
@@ -10,10 +13,11 @@ public class Order {
 
 
     //TODO: make robust stock validation
-    public Order(String ticker,  double[] sltp){
+    public Order(String ticker,double positionSize,  double[] sltp){
         stock = new Stock(ticker);
 
         buyPrice = stock.getPrice();
+        buyPositionSize = positionSize;
         buyTime = System.currentTimeMillis() / 1000L;;
         this.sltp = sltp;
     }
@@ -40,7 +44,7 @@ public class Order {
     }
 
     public double getPnL(){
-        return currentPrice[0] - buyPrice[1];
+        return ((currentPrice[0] - buyPrice[1])/currentPrice[0])*buyPositionSize;
     }
 
 

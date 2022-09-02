@@ -1,3 +1,4 @@
+package Market;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,6 +28,16 @@ public class APIhandler {
 
         } catch(Exception e){
             System.out.println("ERROR: error getting API quote data");
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String getGraphData(String ticker){
+        try {
+            return get("https://yfapi.net/v8/finance/chart/"+ticker+"?range=1mo&region=US&interval=1h&lang=en&events=div%2Csplit");
+        } catch(Exception e){
+            System.out.println("ERROR: error getting API graph data");
             e.printStackTrace();
             return null;
         }
