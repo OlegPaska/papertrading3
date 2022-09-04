@@ -43,8 +43,20 @@ public class Order {
         }
     }
 
+    public Stock getStock(){
+        return stock;
+    }
+
+    public double getBuyInPrice(){
+        return buyPositionSize;
+    }
+
+    public double getCurrentSellPrice(){
+        return ((currentPrice[0] - buyPrice[1])/currentPrice[0]) * buyPositionSize;
+    }
+
     public double getPnL(){
-        return ((currentPrice[0] - buyPrice[1])/currentPrice[0])*buyPositionSize;
+        return (((currentPrice[0] - buyPrice[1])/buyPrice[1])*buyPositionSize)-buyPositionSize;
     }
 
 

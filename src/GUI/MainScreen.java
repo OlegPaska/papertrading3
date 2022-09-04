@@ -1,9 +1,14 @@
 package GUI;
 
+import Market.Order;
 import Market.Portfolio;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
+import java.util.LinkedList;
 
 public class MainScreen extends JPanel {
     public MainScreen(Portfolio portfolio){
@@ -28,8 +33,46 @@ public class MainScreen extends JPanel {
         pnlLabel.setFont(new Font(pnlLabel.getName(), Font.PLAIN, determineFontSize(pnlLabel)));
         add(pnlLabel);
 
+        LinkedList<Order> orders = portfolio.getOrders();
 
-        //todo: this
+        JButton[] positionLabel = new JButton[4];
+
+        //this for loop will overflow the positionLabel array if there are too many orders
+        //todo: fix it
+        for(int i = 0; i<orders.size();i++){
+
+
+            DecimalFormat df = new DecimalFormat("#.##");
+            String ticker = orders.get(i).getStock().getTicker().replaceAll("\"", "").toUpperCase();
+            String name = orders.get(i).getStock().getName().replaceAll("\"", "");
+            double buyPrice = orders.get(i).getBuyInPrice();
+            double sellPrice = orders.get(i).getCurrentSellPrice();
+            double pnl = (sellPrice/buyPrice)*100-100;
+            //todo make these go red and green
+
+
+            positionLabel[i] = new JButton("<html><p>"+ticker+"</p><p>"+name+"</p><p>£"+df.format(buyPrice)+"  £"+df.format(sellPrice)+"  "+df.format(pnl)+"%</p></html>");
+            positionLabel[i].setFont(new Font(("positionLabel"+i) ,Font.PLAIN, 20));
+            positionLabel[i].setBounds(25,120+(105*i),200, 100);
+            positionLabel[i].setHorizontalAlignment(SwingConstants.LEFT);
+            positionLabel[i].setContentAreaFilled(false);
+
+            int finalI = i;
+            positionLabel[i].addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+                    try {
+                        System.out.println("clicked on positionLabel "+ finalI);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+
+            add(positionLabel[i]);
+        }
+
+
+
     }
 
     //nabbed off stackoverflow: https://stackoverflow.com/questions/2715118/how-to-change-the-size-of-the-font-of-a-jlabel-to-take-the-maximum-size
@@ -50,4 +93,11 @@ public class MainScreen extends JPanel {
         int fontSizeToUse = Math.min(newFontSize, componentHeight);
         return fontSizeToUse;
     }
+
+    //make this
+    public void refreshPage(){
+
+    }
+
+
 }

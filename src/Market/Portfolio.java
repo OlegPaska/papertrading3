@@ -43,6 +43,10 @@ public class Portfolio {
         }
     }
 
+    public LinkedList<Order> getOrders(){
+        return orders;
+    }
+
     public void closeBuyOrder(int index){
         orders.get(index-1).updatePrice();
         balance += orders.get(index-1).currentPrice[0];

@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
 
+    //todo: use less api calls
+
     public static void main(String[] args) throws InterruptedException {
 //        Market.APIhandler API = new Market.APIhandler();
 //        Market.JSONparser jason = new Market.JSONparser();
@@ -19,20 +21,22 @@ public class Main {
 //        GUIhandler gui = new GUIhandler();
 //        gui.login();
 
+        GUI geui = new GUI();
+
 //
-     Portfolio portfolio = new Portfolio(20000);
-         //this gives off some wacky results
-//        //todo: fix it
-//
-        portfolio.buyOrder("AAPL", 5000, new double[]{-1,-1});
-        portfolio.buyOrder("Z", 5000, new double[]{-1,-1});
-        portfolio.buyOrder("TSLA", 5000, new double[]{-1,-1});
-        portfolio.buyOrder("goog",5000,  new double[]{-1,-1});
-        GUIhandler gui = new GUIhandler();
-        gui.mainScreen(portfolio);
-        TimeUnit.SECONDS.sleep(60);
-        portfolio.diplayOrders();
-        portfolio.closeBuyOrder(1);
+//     Portfolio portfolio = new Portfolio(20000);
+//         //this gives off some wacky results
+////        //todo: fix it
+////
+//        portfolio.buyOrder("AAPL", 5000, new double[]{-1,-1});
+//        portfolio.buyOrder("Z", 5000, new double[]{-1,-1});
+//        portfolio.buyOrder("TSLA", 5000, new double[]{-1,-1});
+//        portfolio.buyOrder("goog",5000,  new double[]{-1,-1});
+//        GUIhandler gui = new GUIhandler();
+//        gui.mainScreen(portfolio);
+//        TimeUnit.SECONDS.sleep(60);
+//        portfolio.diplayOrders();
+//        portfolio.closeBuyOrder(1);
 //
 //        System.out.println(portfolio.getBalance());
 //        JSONparser jason = new JSONparser();

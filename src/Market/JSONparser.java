@@ -9,7 +9,7 @@ public class JSONparser {
 
 
     //just realised that there is a much easier way of doing this but this way looks more complex.
-    //other way: just search for "/""+keyword+"/":"
+    //other way: just search for "\""+keyword+"\":"
     public String find(String keyword, String JSON){
 
         int cursor = 0;
@@ -34,7 +34,7 @@ public class JSONparser {
                     JSON = JSON.substring(cursor + keyword.length() + 2, JSON.length());
                 }
             }
-            System.out.println("ERROR: unable to find keyword in JSON");
+            System.out.println("ERROR: unable to find keyword <"+keyword+"> in JSON");
             return "ERROR: JSON parse not found";
 
 
@@ -74,7 +74,7 @@ public class JSONparser {
 
             }
         }
-        System.out.println("ERROR: unable to find keyword in JSON");
+        System.out.println("ERROR: unable to find keyword <" + keyword + "> in JSON");
         return new int[] {-1,-1};
     };
 
