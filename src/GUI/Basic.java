@@ -5,7 +5,7 @@ import java.awt.*;
 import Market.JSONparser;
 
 public class Basic extends JPanel {
-
+    //this is also just for reference
     private JFrame frame;
 
     public Basic(String ticker) {

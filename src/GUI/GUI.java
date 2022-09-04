@@ -6,8 +6,9 @@ import java.awt.event.ActionListener;
 
 
 // provides a way to create new graph pop-ups
-public class GUI extends JFrame implements ActionListener {
+public class GUI extends JPanel implements ActionListener {
 
+    //this is just for reference
     private JFrame frame;
     private JButton newGraph;
 
