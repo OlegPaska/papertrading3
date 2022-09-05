@@ -28,7 +28,7 @@ public class GUI extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("Graph results")) {
             System.out.println("click");
-            Basic test = new Basic("AAPL");
+            Basic test = new Basic("TSLA");
         }
     }
 }

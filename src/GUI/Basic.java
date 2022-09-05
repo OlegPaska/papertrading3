@@ -2,7 +2,11 @@ package GUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 import Market.JSONparser;
 import Market.Stock;
@@ -11,33 +15,57 @@ import jdk.swing.interop.SwingInterOpUtils;
 public class Basic extends JPanel {
     //this is also just for reference
     private JFrame frame;
+    String ticker;
+
+    double screenx;
+    double screeny;
+    int marginx;
+    int marginy;
+    double min;
+    double max;
+    double[][] data;
 
     public Basic(String ticker) {
         // initialise the window
+        this.ticker = ticker;
         frame = new JFrame("Demo");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(700, 500);
+        setLayout(null);
+
+        screenx = 700;
+        screeny = 450;
+        marginx = 100;
+        marginy = 50;
+        screenx-=marginx;
+        screeny-=marginy;
+        double[] minmax = getMinMax();
+        min=minmax[0];
+        max=minmax[1];
+        data=getData();
+
 
         // create the canvas that will hold the actual graphics
+
         frame.getContentPane().add(this);
+        labelAxis((int)screenx, (int)screeny, (int)marginx, (int)marginy, min, max);
 
         // display the frame AFTER adding the panel to prevent drawing glitches
         frame.setVisible(true);
 
-        // get market data
-        JSONparser jason = new JSONparser();
+        System.out.println("done");
 
     }
 
-    @Override
-    public void paintComponent(Graphics g) {
+    public double[][] getData() {
+        JSONparser jason=new JSONparser();
+        return jason.getGraphData(ticker);
+    }
 
-        double screenx = 700;
-        double screeny = 500;
-
+    public double[] getMinMax(){
         JSONparser jason = new JSONparser();
         //{[open],[close],[high],[low]}
-        double[][] data = jason.getGraphData("AAPL");
+        double[][] data = jason.getGraphData(ticker);
         //getting min and max to scale graph to screen width
         double min = data[3][0];
         double max = data[2][0];
@@ -49,45 +77,49 @@ public class Basic extends JPanel {
                 max = data[2][i];
             }
         }
+        return new double[]{min,max};
+    }
 
-        //System.out.println(Arrays.deepToString(data));
+    @Override
+    public void paintComponent(Graphics g) {
 
         int count=0;
         for (int i = data[0].length-1; i>=data[0].length-51;i--){
 
             if (data[0][i] < data[1][i]){
                 g.setColor(Color.green);
-                double ypos = ((data[1][i]-min)/(max-min));
-                //body of candle
-                g.fillRect((int)((screenx/50)*count), (int)(ypos*screeny), (int)(screenx/50), (int)((((data[0][i]-min)/(max-min))-ypos)*screeny));
-/*                System.out.println("x: " + (int)((screenx/50)*count));
-                System.out.println("y: " + (int)(ypos*screeny));
-                System.out.println("w: " + (int)(screenx/50));
-                System.out.println("h: " + (int)((ypos-((data[0][i]-min)/(max-min)))*screeny));
-                System.out.println("------------------------------------------------------");*/
-                //upper wick
-/*                g.fillRect((int)(((screenx/50)*count)+screenx/100), (int)(((data[2][i]-min)/(max-min))*screeny), 2,(int)((((data[2][i]-min)/(max-min))-(ypos))*screeny));
-                System.out.println("x: "+(int)(((screenx/50)*count)+screenx/100));
-                System.out.println("y: "+(int)(((data[2][i]-min)/(max-min))*screeny));
-                System.out.println("h: "+(int)((((data[2][i]-min)/(max-min))-(ypos))*screeny));
-                System.out.println("------------------------------------------------------------");*/
-
-                //lower wick
-                //rect height can be negative and it goes up. i am too tired to know what to do with this information
-                g.setColor(Color.BLACK);
-                g.fillRect((int)(((screenx/50)*count)+screenx/100), (int)(((data[0][i]-min)/(max-min))*screeny), 2, (int)-((((data[3][i]-min)/(max-min))-((data[0][i]-min)/(max-min)))*screeny));
-                System.out.println((int)-((((data[3][i]-min)/(max-min))-((data[0][i]-min)/(max-min)))*screeny));
+                //position from 0 to 1 signifying the closing/opening position relative to local minimums and maximums on a screen axis
+                double closeMagnitude = 1-((data[1][i]-min)/(max-min));
+                double openMagnitude = 1-((data[0][i]-min)/(max-min));
+                double lowMagnitude = 1-((data[3][i]-min)/(max-min));
+                double highMagnitude = 1-((data[2][i]-min)/(max-min));
+                g.fillRect((int)(screenx-((screenx/50)*count))+marginx, (int)((closeMagnitude)*screeny)-marginy, (int)(screenx/50), (int)(((openMagnitude-closeMagnitude))*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count)+screenx/100)+marginx, (int)(openMagnitude*screeny)-marginy, 2, (int)((lowMagnitude-openMagnitude)*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count)+screenx/100)+marginx, (int)(closeMagnitude*screeny)-marginy, 2, (int)((highMagnitude-closeMagnitude)*screeny));
 
 
             } else{
                 g.setColor(Color.red);
-                double ypos = ((data[0][i]-min)/(max-min));
-                g.fillRect((int)((screenx/50)*count), (int)(ypos*screeny), (int)(screenx/50), (int)(((ypos-((data[1][i]-min)/(max-min))))*screeny));
+                double closeMagnitude = 1-((data[1][i]-min)/(max-min));
+                double openMagnitude = 1-((data[0][i]-min)/(max-min));
+                double lowMagnitude = 1-((data[3][i]-min)/(max-min));
+                double highMagnitude = 1-((data[2][i]-min)/(max-min));
+                g.fillRect((int)(screenx-((screenx/50)*count))+marginx, (int)((openMagnitude)*screeny)-marginy, (int)(screenx/50), (int)(((closeMagnitude-openMagnitude))*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count)+screenx/100)+marginx, (int)(lowMagnitude*screeny)-marginy, 2, (int)((openMagnitude-lowMagnitude)*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count)+screenx/100)+marginx, (int)(highMagnitude*screeny)-marginy, 2, (int)((closeMagnitude-highMagnitude)*screeny));
 
             }
             count++;
 
         }
+        System.out.println("finished making candlestick graph");
+        g.setColor(Color.BLACK);
+        //draws axis lines
+        g.fillRect(marginx, 0, 2, (int)screeny);
+        g.fillRect(marginx, (int)screeny, (int)screenx, 2);
+
+
+
 /*
         int left = 50;    // hard-coded just for testing
         int top = 80;
@@ -96,5 +128,35 @@ public class Basic extends JPanel {
         g.setColor(Color.red);
         g.fillRect(left, top, width, height);
         g.fillRect((int)10.5,(int)10.3,(int) screenx/50,(int) 10.9);*/
+    }
+    public void labelAxis(int screenx, int screeny, int marginx, int marginy, double min, double max){
+        //make this output price markers at regular intervals on the y axis
+        DecimalFormat df = new DecimalFormat("#.##");
+        df.setRoundingMode(RoundingMode.DOWN);
+
+        JLabel maxLabel = new JLabel(df.format(max));
+        maxLabel.setBounds(0,0,100, 10);
+        maxLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(maxLabel);
+
+        JLabel minLabel = new JLabel(df.format(min));
+        minLabel.setBounds(0,screeny,100, 10);
+        minLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(minLabel);
+
+        Date earliestDate = new java.util.Date((long)data[4][data[0].length-51]*1000L);
+        SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM-dd HH:mm:ss");
+        Date latestDate = new java.util.Date((long)data[4][data[0].length-1]*1000L);
+
+        JLabel earliestTimeLabel = new JLabel(sdf.format(earliestDate));
+        earliestTimeLabel.setBounds(100,screeny,100, marginy);
+        earliestTimeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(earliestTimeLabel);
+
+        JLabel latestTimeLabel = new JLabel(sdf.format(latestDate));
+        latestTimeLabel.setBounds(screenx+marginy-100,screeny,100, marginy);
+        latestTimeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        add(latestTimeLabel);
+
     }
 }

@@ -100,11 +100,13 @@ public class JSONparser {
         int[] closeIndexes = findIndex("close", JSON);
         int[] highIndexes = findIndex("high", JSON);
         int[] lowIndexes = findIndex("low", JSON);
+        int[] timeStampIndex = findIndex("timestamp", JSON);
         double[] open = Arrays.stream(JSON.substring(openIndexes[0], openIndexes[1]).split(",")).mapToDouble(Double::parseDouble).toArray();
         double[] close = Arrays.stream(JSON.substring(closeIndexes[0], closeIndexes[1]).split(",")).mapToDouble(Double::parseDouble).toArray();
         double[] high = Arrays.stream(JSON.substring(highIndexes[0], highIndexes[1]).split(",")).mapToDouble(Double::parseDouble).toArray();
         double[] low = Arrays.stream(JSON.substring(lowIndexes[0], lowIndexes[1]).split(",")).mapToDouble(Double::parseDouble).toArray();
-        return new double[][] {open, close, high, low};
+        double[] timeStamp = Arrays.stream(JSON.substring(timeStampIndex[0], timeStampIndex[1]).split(",")).mapToDouble(Double::parseDouble).toArray();
+        return new double[][] {open, close, high, low, timeStamp};
 
 
     }
