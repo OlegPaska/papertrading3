@@ -145,7 +145,7 @@ public class Basic extends JPanel {
         add(minLabel);
 
         Date earliestDate = new java.util.Date((long)data[4][data[0].length-51]*1000L);
-        SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM-dd HH:mm");
         Date latestDate = new java.util.Date((long)data[4][data[0].length-1]*1000L);
 
         JLabel earliestTimeLabel = new JLabel(sdf.format(earliestDate));
