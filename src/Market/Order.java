@@ -21,7 +21,6 @@ public class Order {
         buyTime = System.currentTimeMillis() / 1000L;;
         this.sltp = sltp;
     }
-
     public boolean updatePrice(){
         //if this returns true then the position needs to be closed
         currentPrice = stock.getPrice();

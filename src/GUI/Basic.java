@@ -24,7 +24,6 @@ public class Basic extends JPanel {
     double min;
     double max;
     double[][] data;
-    int numOfCandles = 50;
 
     public Basic(String ticker) {
         // initialise the window
@@ -70,7 +69,7 @@ public class Basic extends JPanel {
         //getting min and max to scale graph to screen width
         double min = data[3][0];
         double max = data[2][0];
-        for(int i = data[2].length-1; i>=data[2].length-numOfCandles-1;i--){
+        for(int i = data[2].length-1; i>=data[2].length-51;i--){
             if(data[3][i] < min){
                 min = data[3][i];
             }
@@ -85,10 +84,8 @@ public class Basic extends JPanel {
     public void paintComponent(Graphics g) {
 
         int count=0;
-        for (int i = data[0].length-1; i>=data[0].length-numOfCandles-1;i--){
+        for (int i = data[0].length-1; i>=data[0].length-51;i--){
 
-            //todo: there is a problem with the wicks
-            //green ones have no upper wick and red ones have no lower wick
             if (data[0][i] < data[1][i]){
                 g.setColor(Color.green);
                 //position from 0 to 1 signifying the closing/opening position relative to local minimums and maximums on a screen axis
@@ -96,9 +93,9 @@ public class Basic extends JPanel {
                 double openMagnitude = 1-((data[0][i]-min)/(max-min));
                 double lowMagnitude = 1-((data[3][i]-min)/(max-min));
                 double highMagnitude = 1-((data[2][i]-min)/(max-min));
-                g.fillRect((int)(screenx-((screenx/numOfCandles)*count))+marginx, (int)((closeMagnitude)*screeny)-marginy, (int)(screenx/numOfCandles), (int)(((openMagnitude-closeMagnitude))*screeny));
-                g.fillRect((int)(screenx-((screenx/numOfCandles)*count)+screenx/(numOfCandles*2))+marginx, (int)(openMagnitude*screeny)-marginy, 2, (int)((lowMagnitude-openMagnitude)*screeny));
-                g.fillRect((int)(screenx-((screenx/numOfCandles)*count)+screenx/(numOfCandles*2))+marginx, (int)(closeMagnitude*screeny)-marginy, 2, (int)((highMagnitude-closeMagnitude)*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count))+marginx, (int)((closeMagnitude)*screeny)-marginy, (int)(screenx/50), (int)(((openMagnitude-closeMagnitude))*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count)+screenx/100)+marginx, (int)(openMagnitude*screeny)-marginy, 2, (int)((lowMagnitude-openMagnitude)*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count)+screenx/100)+marginx, (int)(closeMagnitude*screeny)-marginy, 2, (int)((highMagnitude-closeMagnitude)*screeny));
 
 
             } else{
@@ -107,9 +104,9 @@ public class Basic extends JPanel {
                 double openMagnitude = 1-((data[0][i]-min)/(max-min));
                 double lowMagnitude = 1-((data[3][i]-min)/(max-min));
                 double highMagnitude = 1-((data[2][i]-min)/(max-min));
-                g.fillRect((int)(screenx-((screenx/numOfCandles)*count))+marginx, (int)((openMagnitude)*screeny)-marginy, (int)(screenx/numOfCandles), (int)(((closeMagnitude-openMagnitude))*screeny));
-                g.fillRect((int)(screenx-((screenx/numOfCandles)*count)+screenx/(numOfCandles*2))+marginx, (int)(lowMagnitude*screeny)-marginy, 2, (int)((openMagnitude-lowMagnitude)*screeny));
-                g.fillRect((int)(screenx-((screenx/numOfCandles)*count)+screenx/(numOfCandles*2))+marginx, (int)(highMagnitude*screeny)-marginy, 2, (int)((closeMagnitude-highMagnitude)*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count))+marginx, (int)((openMagnitude)*screeny)-marginy, (int)(screenx/50), (int)(((closeMagnitude-openMagnitude))*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count)+screenx/100)+marginx, (int)(lowMagnitude*screeny)-marginy, 2, (int)((openMagnitude-lowMagnitude)*screeny));
+                g.fillRect((int)(screenx-((screenx/50)*count)+screenx/100)+marginx, (int)(highMagnitude*screeny)-marginy, 2, (int)((closeMagnitude-highMagnitude)*screeny));
 
             }
             count++;
@@ -147,8 +144,8 @@ public class Basic extends JPanel {
         minLabel.setHorizontalAlignment(SwingConstants.CENTER);
         add(minLabel);
 
-        Date earliestDate = new java.util.Date((long)data[4][data[0].length-numOfCandles-1]*1000L);
-        SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM-dd HH:mm");
+        Date earliestDate = new java.util.Date((long)data[4][data[0].length-51]*1000L);
+        SimpleDateFormat sdf = new java.text.SimpleDateFormat("MM-dd HH:mm:ss");
         Date latestDate = new java.util.Date((long)data[4][data[0].length-1]*1000L);
 
         JLabel earliestTimeLabel = new JLabel(sdf.format(earliestDate));

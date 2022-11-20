@@ -5,6 +5,8 @@ import Market.Portfolio;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
@@ -33,35 +35,50 @@ public class MainScreen extends JPanel {
         pnlLabel.setFont(new Font(pnlLabel.getName(), Font.PLAIN, determineFontSize(pnlLabel)));
         add(pnlLabel);
 
-        LinkedList<Order> orders = portfolio.getOrders();
 
-        JButton[] positionLabel = new JButton[4];
+
+        JTextField searchBar = new JTextField();
+        searchBar.setMargin(new Insets(2,13,3,2)); // padding the text
+        searchBar.setBounds(25,110, 170, 30);
+        add(searchBar);
+
+
+        
+        JButton  button = new JButton(""); // search icon
+        button.setIcon(new ImageIcon(new ImageIcon("src/data/search.png").getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH))); // scaling the image properly so that there is no stretch
+        button.setContentAreaFilled(false);
+        button.setBounds(195,110, 30, 30);
+        add(button);
+
+
 
         //this for loop will overflow the positionLabel array if there are too many orders
         //todo: fix it
+        LinkedList<Order> orders = portfolio.getOrders();
+        JButton[] positionLabel = new JButton[orders.size()];
         for(int i = 0; i<orders.size();i++){
-
 
             DecimalFormat df = new DecimalFormat("#.##");
             String ticker = orders.get(i).getStock().getTicker().replaceAll("\"", "").toUpperCase();
             String name = orders.get(i).getStock().getName().replaceAll("\"", "");
             double buyPrice = orders.get(i).getBuyInPrice();
             double sellPrice = orders.get(i).getCurrentSellPrice();
-            double pnl = (sellPrice/buyPrice)*100-100;
+            double pnl = (sellPrice / buyPrice) * 100 - 100;
             //todo make these go red and green
 
 
-            positionLabel[i] = new JButton("<html><p>"+ticker+"</p><p>"+name+"</p><p>£"+df.format(buyPrice)+"  £"+df.format(sellPrice)+"  "+df.format(pnl)+"%</p></html>");
-            positionLabel[i].setFont(new Font(("positionLabel"+i) ,Font.PLAIN, 20));
-            positionLabel[i].setBounds(25,120+(105*i),200, 100);
+            positionLabel[i] = new JButton("<html><p>" + ticker + "</p><p>" + name + "</p><p>£" + df.format(buyPrice) + "  £" + df.format(sellPrice) + "  " + df.format(pnl) + "%</p></html>");
+            positionLabel[i].setFont(new Font(("positionLabel" + i), Font.PLAIN, 20));
+            positionLabel[i].setBounds(25, 150 + (105 * i), 200, 100);
             positionLabel[i].setHorizontalAlignment(SwingConstants.LEFT);
             positionLabel[i].setContentAreaFilled(false);
 
-            int finalI = i;
+            int lastI = i;
             positionLabel[i].addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
                     try {
-                        System.out.println("clicked on positionLabel "+ finalI);
+                        System.out.println("clicked on positionLabel " + lastI);
+
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
