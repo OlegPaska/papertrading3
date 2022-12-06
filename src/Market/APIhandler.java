@@ -22,9 +22,9 @@ public class APIhandler {
         System.out.println("api call");
         return response.body();
     }
-    public String get(String url, boolean devMode) throws IOException, InterruptedException {
+    public String get(String url, boolean cache) throws IOException, InterruptedException {
 
-        if(devMode) {
+        if(devMode || cache){
             try (
                     FileReader fr = new FileReader("src/data/api_cache.txt");
                     BufferedReader br = new BufferedReader(fr);
@@ -33,7 +33,7 @@ public class APIhandler {
                 String line = br.readLine();
                 while (line != null) {
                     line = br.readLine();
-                    if (line.equals(url)) {
+                    if (line != null && line.equals(url)) {
                         System.out.println("cached api data accessed [DEV MODE]");
                         return br.readLine();
                     }
@@ -75,9 +75,9 @@ public class APIhandler {
 
 
 
-    public String getQuote(String ticker)  {
+    public String getQuote(String ticker, boolean cache)  {
         try {
-            return get("https://yfapi.net/v6/finance/quote?region=GB&lang=en&symbols="+ticker, devMode);
+            return get("https://yfapi.net/v6/finance/quote?region=GB&lang=en&symbols="+ticker, cache);
 
         } catch(Exception e){
             System.out.println("ERROR: error getting API quote data");

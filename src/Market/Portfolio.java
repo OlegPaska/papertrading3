@@ -13,6 +13,8 @@ public class Portfolio {
 
     public Portfolio(double balance){
         this.balance = balance;
+        //get existing positions from file
+
     }
 
     public void buyOrder(String ticker, double positionSize, double[] sltp){
@@ -31,7 +33,7 @@ public class Portfolio {
             System.out.println(count + ")");
             count++;
             System.out.println(order.stock.name);
-            System.out.println(new Date((long)order.buyTime*1000));
+            System.out.println(new Date((long)order.getBuyTime()*1000));
 
             order.updatePrice();
             Double pnl = order.getPnL();
@@ -48,9 +50,10 @@ public class Portfolio {
     }
 
     public void closeBuyOrder(int index){
-        orders.get(index-1).updatePrice();
-        balance += orders.get(index-1).currentPrice[0];
+        orders.get(index-1).closeOrder();
+        balance += orders.get(index-1).getCurrentPrice();
         orders.remove(index-1);
+        //todo: remove this from file and make it work
     }
 
     public double getBalance(){

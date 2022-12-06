@@ -14,22 +14,24 @@ public class Stock {
 
     public Stock(String ticker){
         this.ticker = ticker;
-        String JSONdata = api.getQuote(ticker);
+        String JSONdata = api.getQuote(ticker, true);
         if(validateTicker(JSONdata)){
             name = jason.find("longName", JSONdata);
         }
     }
 
 
+    //what is this for??
     public boolean validateTicker(){
         //checks if api fails to get price
         //makes new api call
-        String data = api.getQuote(ticker);
+        String data = api.getQuote(ticker,true);
         if(data != null){
             return true;
         }
         return false;
     }
+
     public boolean validateTicker(String data){
         //checks if api fails to get price
         //validation is done when constructing stock profile and in the order class

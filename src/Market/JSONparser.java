@@ -79,7 +79,7 @@ public class JSONparser {
     };
 
     public double[] getBidAsk(String stock){
-        String JSON = api.getQuote(stock);
+        String JSON = api.getQuote(stock, false);
         String bid = find("bid", JSON);
         String ask = find("ask", JSON);
         //error checking
