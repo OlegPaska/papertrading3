@@ -1,11 +1,11 @@
 package Market;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class Order {
 
     Stock stock;
-
     private double buyPrice;
     private double buyPositionSize;
     private double currentPrice;
@@ -13,7 +13,9 @@ public class Order {
     //stop loss/take profit
     private long currentTime;
     private double[] sltp = new double[1];
-    String ticker;
+    private String ticker;
+
+    private String orderType = "long";
 
 
     //TODO: make robust stock validation
@@ -26,56 +28,86 @@ public class Order {
         this.ticker = ticker;
         this.sltp = sltp;
         //calling method to save order
+        saveOrder(true);
 
     }
 
-    public void saveOrder(boolean normalOrder){
+    //this is the one called by the portfolio class on startup  when reading from file
+    public Order(String ticker, double buyPrice, long buyTime, double buyPositionSize,double[] sltp){
+        //setting variables
+        stock = new Stock(ticker);
+        this.buyPrice = buyPrice;
+        buyPositionSize = buyPositionSize;
+        this.buyTime = buyTime;
+        this.ticker = ticker;
+        this.sltp = sltp;
+
+    }
+
+    public void saveOrder(boolean longOrder){
         //saved in a csv
-        //stock ticker, buy price (ask), buy time, stop loss, take profit
+        //stock ticker, buy price (ask), buy time, position size, stop loss, take profit, long order?
         try (
                 FileWriter fw = new FileWriter("src/data/orders.txt", true);
                 PrintWriter pw = new PrintWriter(fw)
         ) {
-            pw.println(""+ticker+buyPrice+buyTime+sltp[0]+sltp[1]);
+            pw.println(ticker+","+buyPrice+","+buyTime+","+buyPositionSize+","+sltp[0]+","+sltp[1]+",long");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void closeOrder(){
+    public double closeOrder(){
         //closes order and returns sell price
         updatePrice();
+        ArrayList<Integer> tickerIndex = new ArrayList<Integer>();
+        ArrayList<String> lines = new ArrayList<String>();
         int count = 0;
-        //finds stock in file
+        //finds stock in file and saves all stocks after in arraylist
         try (
-                FileReader fr = new FileReader("src/data/api_cache.txt");
+                FileReader fr = new FileReader("src/data/orders.txt");
                 BufferedReader br = new BufferedReader(fr);
         ) {
             String line = br.readLine();
-            //finds the ticker
-            while (line != null && line.split(",")[0].equals(ticker)) {
+            //finds the ticker and saves file contents into lines
+
+            while (line != null) {
+                lines.add(line);
+                //finds index of all orders with specified ticker
+                if(line.split(",")[0].equals(ticker)) {
+                    tickerIndex.add(count);
+                }
                 count++;
                 line = br.readLine();
             }
+
+
+            //removes all orders with the ticker
+            for(int i: tickerIndex){
+                //this is why i couldnt use queue or stack
+                lines.remove(i);
+            }
+
+            //reconstructs orders file
+            try (
+                    FileWriter fw = new FileWriter("src/data/orders.txt", false);
+                    PrintWriter pw = new PrintWriter(fw)
+            ) {
+                for(int i = 0;i<lines.size(); i++){
+                    pw.println(lines.get(i));
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("error accessing saved data [closeOrder()]");
         }
 
-        //deletes entry
-        //todo: none of this works i need to save the previous records into queue or stack and then add the rest without deleted thing
-        try (
-                FileWriter fw = new FileWriter("src/data/orders.txt", false);
-                PrintWriter pw = new PrintWriter(fw)
-        ) {
-            for(int i = 0; i <= count; i++){
-                //how do i iterate through this
-            }
-            pw.println("[POSITION_CLOSED]");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        return getPnL();
 
     }
     public boolean updatePrice(){
@@ -112,7 +144,7 @@ public class Order {
     }
 
     public double getBuyInPrice(){
-        return buyPositionSize;
+        return buyPositionSize * buyPrice;
     }
 
     public double getCurrentSellPrice(){
@@ -121,7 +153,11 @@ public class Order {
     }
 
     public double getPnL(){
-        return buyPositionSize-getCurrentSellPrice();
+        return getBuyInPrice()-getCurrentSellPrice();
+    }
+
+    public double getPnLPercent(){
+        return getPnL()/getBuyInPrice();
     }
 
 

@@ -1,7 +1,5 @@
 package Market;
 
-import Market.APIhandler;
-import Market.JSONparser;
 
 public class Stock {
     JSONparser jason = new JSONparser();

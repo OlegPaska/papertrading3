@@ -29,15 +29,17 @@ public class Main {
          //this gives off some wacky results
 //        //todo: fix it
 //
-        portfolio.buyOrder("AAPL", 5000, new double[]{-1,-1});
-        portfolio.buyOrder("Z", 5000, new double[]{-1,-1});
-        portfolio.buyOrder("TSLA", 5000, new double[]{-1,-1});
-        portfolio.buyOrder("goog",5000,  new double[]{-1,-1});
-        portfolio.buyOrder("tdoc", 5000, new double[]{-1,-1});
-        portfolio.buyOrder("cvna",5000,  new double[]{-1,-1});
-        GUIhandler gui = new GUIhandler();
-        gui.mainScreen(portfolio);
-        TimeUnit.SECONDS.sleep(60);
+//        portfolio.buyOrder("AAPL", 5000, new double[]{-1,-1});
+//        portfolio.buyOrder("Z", 5000, new double[]{-1,-1});
+//        portfolio.buyOrder("TSLA", 5000, new double[]{-1,-1});
+//        portfolio.buyOrder("goog",5000,  new double[]{-1,-1});
+//        portfolio.buyOrder("tdoc", 5000, new double[]{-1,-1});
+//        portfolio.buyOrder("cvna",5000,  new double[]{-1,-1});
+        portfolio.clo
+        portfolio.displayOrders();
+        //GUIhandler gui = new GUIhandler();
+        //gui.mainScreen(portfolio);
+        //TimeUnit.SECONDS.sleep(60);
 //        portfolio.diplayOrders();
 //        portfolio.closeBuyOrder(1);
 //
