@@ -4,28 +4,34 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-public class Login extends JPanel implements ActionListener{
+import Login.LoginHandler;
+
+public class Login extends JPanel{
     // canvas for other GUI widgets
     JFrame frame;
-
-    String username = "admin";
-    String password = "admin";
-    //why is this here
-    JButton button;
+    JButton login;
+    JButton signup;
     JLabel usernameLabel;
     JTextField usernameTextField;
     JLabel passwordLabel;
-    JPasswordField passwordField;
-
+    JTextField passwordTextField;
+    JLabel balanceLabel;
+    JTextField balanceTextField;
     GUIhandler guiHandler;
+    JTextField warningMessage;
+
+    LoginHandler loginHandler = new LoginHandler();
+
 
     public Login(JFrame frame, GUIhandler guiHandler) {
         this.frame = frame;
         this.guiHandler = guiHandler;
 
         System.out.println("GUI SEQUENCE: Login");
-        this.setPreferredSize(new Dimension(350, 150));
+        this.setPreferredSize(new Dimension(350, 160));
         setLayout(null);
 
 
@@ -38,39 +44,58 @@ public class Login extends JPanel implements ActionListener{
         passwordLabel = new JLabel("Password");
         passwordLabel.setBounds(40,50, 80, 25);
 
-        passwordField = new JPasswordField();
-        passwordField.setBounds(130,50, 165, 25);
+        passwordTextField = new JTextField();
+        passwordTextField.setBounds(130,50, 165, 25);
 
-        button = new JButton("Submit");
-        button.addActionListener(this);
-        button.setBounds(212,85, 80, 25);
+        balanceLabel = new JLabel("Balance (if signing up)");
+        balanceLabel.setBounds(40,80, 80, 25);
+
+        balanceTextField = new JTextField();
+        balanceTextField.setBounds(130,80, 165, 25);
+
+        //todo:implement
+        warningMessage = new JTextField();
+
+
+
+
+        login = new JButton("Log in");
+        login.setBounds(212,110, 80, 25);
+        login.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    loginHandler.login(usernameTextField.getText(), passwordTextField.getText());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        signup = new JButton("Sign Up?");
+        signup.setBounds(120,110, 80, 25);
+        signup.addMouseListener(new MouseAdapter() {
+                                    public void mouseClicked(MouseEvent e) {
+                                        try {
+                                            if(!(usernameTextField.getText().length()>32||passwordTextField.getText().length()>32)) {
+                                                loginHandler.signup(usernameTextField.getText(), passwordTextField.getText(), Double.parseDouble(balanceTextField.getText()));
+                                            }else{
+                                                warningMessage.setText("Invalid username or password: must be below 32 characters");
+                                                warningMessage.setVisible(true);
+                                            }
+                                        } catch (Exception ex) {
+                                            ex.printStackTrace();
+                                        }
+                                    }
+                                });
 
         add(usernameLabel);
         add(usernameTextField);
         add(passwordLabel);
-        add(passwordField);
-        add(button);
+        add(passwordTextField);
+        add(login);
+        add(signup);
+        add(balanceLabel);
+        add(balanceTextField);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e){
-        //todo: do this some different way
-//        String inputUsername = usernameTextField.getText();
-//        String inputPassword = passwordField.getText();
-//
-//        if (inputUsername.equals(username) && inputPassword.equals(password)){
-//            System.out.print("User Authenticated...");
-//            try {
-//                GUIhandler.setHomeScreenVisible(true);
-//            } catch (InterruptedException ex) {
-//                ex.printStackTrace();
-//            }
-//            frame.dispose();
-//
-//        } else { // if authentication credentials invalid...
-//            JOptionPane.showMessageDialog(this, "Invalid Credentials, Try Again");
-//            passwordField.setText(""); // Clears the password field...
-//        }
-
-    }
 }

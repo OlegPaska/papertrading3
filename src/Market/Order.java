@@ -5,22 +5,24 @@ import java.util.ArrayList;
 
 public class Order {
 
+    String username;
     Stock stock;
-    private double buyPrice;
-    private double buyPositionSize;
-    private double currentPrice;
-    private long buyTime;
+    double buyPrice;
+    double buyPositionSize;
+    double currentPrice;
+    long buyTime;
     //stop loss/take profit
-    private long currentTime;
-    private double[] sltp = new double[1];
-    private String ticker;
+    long currentTime;
+    double[] sltp = new double[1];
+    String ticker;
 
-    private String orderType = "long";
+    String orderType = "long";
 
 
     //TODO: make robust stock validation
-    public Order(String ticker,double positionSize,  double[] sltp){
+    public Order(String ticker,double positionSize,  double[] sltp, String username){
         //setting variables
+        this.username = username;
         stock = new Stock(ticker);
         buyPrice = stock.getPrice()[1];
         buyPositionSize = positionSize;
@@ -28,13 +30,14 @@ public class Order {
         this.ticker = ticker;
         this.sltp = sltp;
         //calling method to save order
-        saveOrder(true);
+        saveOrder();
 
     }
 
     //this is the one called by the portfolio class on startup  when reading from file
-    public Order(String ticker, double buyPrice, long buyTime, double buyPositionSize,double[] sltp){
+    public Order(String ticker, double buyPrice, long buyTime, double buyPositionSize,double[] sltp, String username){
         //setting variables
+        this.username = username;
         stock = new Stock(ticker);
         this.buyPrice = buyPrice;
         buyPositionSize = buyPositionSize;
@@ -44,14 +47,14 @@ public class Order {
 
     }
 
-    public void saveOrder(boolean longOrder){
+    public void saveOrder(){
         //saved in a csv
         //stock ticker, buy price (ask), buy time, position size, stop loss, take profit, long order?
         try (
                 FileWriter fw = new FileWriter("src/data/orders.txt", true);
                 PrintWriter pw = new PrintWriter(fw)
         ) {
-            pw.println(ticker+","+buyPrice+","+buyTime+","+buyPositionSize+","+sltp[0]+","+sltp[1]+",long");
+            pw.println(ticker+","+buyPrice+","+buyTime+","+buyPositionSize+","+sltp[0]+","+sltp[1]+",long,"+username);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -135,6 +138,10 @@ public class Order {
         return buyTime;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
     public double getCurrentPrice(){
         return currentPrice;
     }
@@ -145,6 +152,11 @@ public class Order {
 
     public double getBuyInPrice(){
         return buyPositionSize * buyPrice;
+    }
+    public double getBuyPositionSize(){return buyPositionSize;}
+
+    public double[] getSltp() {
+        return sltp;
     }
 
     public double getCurrentSellPrice(){

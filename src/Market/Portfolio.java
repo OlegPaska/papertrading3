@@ -3,6 +3,8 @@ package Market;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -13,10 +15,19 @@ public class Portfolio {
 
     //portfolio balance data will be stored as date
     double balance;
+    String username;
     LinkedList<Order> orders = new LinkedList<Order>();
 
-    public Portfolio(double balance){
+    //only called when user first starts portfolio
+    public Portfolio(double balance, String username){
         this.balance = balance;
+        this.username = username;
+    }
+
+    //only called when a user already has an account
+    public Portfolio(String username){
+        this.balance = balance;
+        this.username = username;
         //get existing positions from file
         try (
                 FileReader fr = new FileReader("src/data/orders.txt");
@@ -26,25 +37,37 @@ public class Portfolio {
             while(line != null){
                 System.out.println(line);
                 //if its long or short
-                if(line.split(",")[6].equals("long")) {
-                    orders.add(new Order(line.split(",")[0], Double.parseDouble(line.split(",")[1]), Long.parseLong(line.split(",")[2]), Double.parseDouble(line.split(",")[3]), new double[]{Double.parseDouble(line.split(",")[4]), Double.parseDouble(line.split(",")[5])}));
+                if(line.split(",")[6].equals("long") && username.equals(line.split(",")[7])) {
+                    orders.add(new Order(line.split(",")[0], Double.parseDouble(line.split(",")[1]), Long.parseLong(line.split(",")[2]), Double.parseDouble(line.split(",")[3]), new double[]{Double.parseDouble(line.split(",")[4]), Double.parseDouble(line.split(",")[5])}, username));
+                }else if(line.split(",")[6].equals("short") && username.equals(line.split(",")[7])){
+                    orders.add(new ShortOrder(line.split(",")[0], Double.parseDouble(line.split(",")[1]), Long.parseLong(line.split(",")[2]), Double.parseDouble(line.split(",")[3]), new double[]{Double.parseDouble(line.split(",")[4]), Double.parseDouble(line.split(",")[5])}, username));
                 }
-                    line = br.readLine();
+                line = br.readLine();
             }
-
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public void buyOrder(String ticker, double positionSize, double[] sltp){
-        Order order = new Order(ticker, positionSize, sltp);
+        Order order = new Order(ticker.toLowerCase(), positionSize, sltp, username);
         orders.add(order);
         //buy at ask sell at bid
         balance -= positionSize;
+    }
+
+    public void shortOrder(String ticker, double positionSize, double[] sltp){
+        ShortOrder shortOrder = new ShortOrder(ticker.toLowerCase(), positionSize, sltp, username);
+        orders.add(shortOrder);
+        balance -= positionSize;
+    }
+
+
+    public void closeOrder(int index){
+        balance += orders.get(index-1).closeOrder();
+        orders.remove(index-1);
     }
 
     //todo: stretch goal: make all these stock variables private and use getters and setters
@@ -72,10 +95,7 @@ public class Portfolio {
         return orders;
     }
 
-    public void closeOrder(int index){
-        balance += orders.get(index-1).closeOrder();
-        orders.remove(index-1);
-    }
+
 
     public double getBalance(){
         return balance;

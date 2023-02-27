@@ -87,7 +87,6 @@ public class APIhandler {
         //this will have useCache set to false but all stock information will have data that has been cached
     }
 
-    //make a new class which uses cached quote data fro
 
     public String getGraphData(String ticker){
         try {

@@ -6,15 +6,19 @@ public class Stock {
     APIhandler api = new APIhandler();
     String ticker;
     String name;
+    String volume;
+    String fda;
 
 
     //TODO: test the stock validation
 
     public Stock(String ticker){
-        this.ticker = ticker;
+        this.ticker = ticker.toLowerCase();
         String JSONdata = api.getQuote(ticker, true);
         if(validateTicker(JSONdata)){
             name = jason.find("longName", JSONdata);
+            fda = jason.find("fiftyDayAverage", JSONdata);
+            volume = jason.find("averageDailyVolume10Day", JSONdata);
         }
     }
 
@@ -42,6 +46,14 @@ public class Stock {
 
     public double[] getPrice(){
         return jason.getBidAsk(ticker);
+    }
+
+    public String getVolume(){
+        return volume;
+    }
+
+    public String getFda(){
+        return fda;
     }
 
     public String getName(){
