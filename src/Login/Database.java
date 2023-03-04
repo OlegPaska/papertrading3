@@ -30,15 +30,24 @@ public class Database {
 
     public boolean validifyPassword(int start, String password){
         //validification for an extra layer of security
-        return getRecord(start).substring(32).trim().equals(password.trim());
+        return getRecord(start).substring(32, 63).trim().equals(password.trim());
     }
 
-    public void signup(String username, String password){
+    public double getBalance(int start){
+        return Double.parseDouble(getRecord(start).substring(64, 96).trim());
+
+    }
+
+    public void signup(String username, String password, double balance){
         String data = username;
-        while(data.length() < rowWidth/2){
+        while(data.length() < rowWidth/3){
             data += " ";
         }
         data += password;
+        while(data.length() < (rowWidth/3)*2){
+            data += " ";
+        }
+        data += balance;
         while(data.length() < rowWidth){
             data += " ";
         }
@@ -88,7 +97,7 @@ public class Database {
 
 
     public String getRecord(int rowNumber) {
-        //rowWidth+1 because of the invisible linebreak character
+        //rowWidth+2 because of the invisible linebreak character
         return FileHandler.readLineAt(filename, rowNumber * (rowWidth+2));
     }
 

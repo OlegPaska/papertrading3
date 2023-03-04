@@ -34,7 +34,7 @@ public class FileHandler {
         // grab the line from position "start" in the file
         try (RandomAccessFile rf = new RandomAccessFile(fileName, "rws")) {
             rf.seek(start);
-            return rf.readLine().trim();
+            return rf.readLine();
         }
         catch (IOException e) {
             e.printStackTrace();

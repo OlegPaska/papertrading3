@@ -8,7 +8,8 @@ public class Order {
     String username;
     Stock stock;
     double buyPrice;
-    double buyPositionSize;
+    double buyEquity;
+    double sharesBought;
     double currentPrice;
     long buyTime;
     //stop loss/take profit
@@ -16,16 +17,17 @@ public class Order {
     double[] sltp = new double[1];
     String ticker;
 
-    String orderType = "long";
+    String islong = "long";
 
 
     //TODO: make robust stock validation
-    public Order(String ticker,double positionSize,  double[] sltp, String username){
+    public Order(String ticker,double equity,  double[] sltp, String username){
         //setting variables
         this.username = username;
         stock = new Stock(ticker);
         buyPrice = stock.getPrice()[1];
-        buyPositionSize = positionSize;
+        buyEquity = equity;
+        sharesBought = equity/buyPrice;
         buyTime = System.currentTimeMillis() / 1000L;;
         this.ticker = ticker;
         this.sltp = sltp;
@@ -35,12 +37,13 @@ public class Order {
     }
 
     //this is the one called by the portfolio class on startup  when reading from file
-    public Order(String ticker, double buyPrice, long buyTime, double buyPositionSize,double[] sltp, String username){
+    public Order(String ticker, double buyPrice, long buyTime, double sharesBought,double[] sltp, String username){
         //setting variables
         this.username = username;
         stock = new Stock(ticker);
         this.buyPrice = buyPrice;
-        buyPositionSize = buyPositionSize;
+        this.sharesBought = sharesBought;
+        this.buyEquity = sharesBought*buyPrice;
         this.buyTime = buyTime;
         this.ticker = ticker;
         this.sltp = sltp;
@@ -49,18 +52,18 @@ public class Order {
 
     public void saveOrder(){
         //saved in a csv
-        //stock ticker, buy price (ask), buy time, position size, stop loss, take profit, long order?
+        //stock ticker, buy price (ask), buy time, position size, stop loss, take profit, long order, username
         try (
                 FileWriter fw = new FileWriter("src/data/orders.txt", true);
                 PrintWriter pw = new PrintWriter(fw)
         ) {
-            pw.println(ticker+","+buyPrice+","+buyTime+","+buyPositionSize+","+sltp[0]+","+sltp[1]+",long,"+username);
+            pw.println(ticker.toUpperCase()+","+buyPrice+","+buyTime+","+ sharesBought +","+sltp[0]+","+sltp[1]+",long,"+username);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public double closeOrder(){
+    public double closeOrder(int index){
         //closes order and returns sell price
         updatePrice();
         ArrayList<Integer> tickerIndex = new ArrayList<Integer>();
@@ -76,8 +79,8 @@ public class Order {
 
             while (line != null) {
                 lines.add(line);
-                //finds index of all orders with specified ticker
-                if(line.split(",")[0].equals(ticker)) {
+                //finds index of all orders with specified ticker belonging to the user
+                if(line.split(",")[7].equals(username)) {
                     tickerIndex.add(count);
                 }
                 count++;
@@ -86,9 +89,12 @@ public class Order {
 
 
             //removes all orders with the ticker
+            count = 0;
             for(int i: tickerIndex){
-                //this is why i couldnt use queue or stack
-                lines.remove(i);
+                if(count == index) {
+                    lines.remove(i);
+                }
+                count++;
             }
 
             //reconstructs orders file
@@ -110,7 +116,7 @@ public class Order {
             System.out.println("error accessing saved data [closeOrder()]");
         }
 
-        return getPnL();
+        return getCurrentSellPrice();
 
     }
     public boolean updatePrice(){
@@ -120,6 +126,10 @@ public class Order {
         currentTime = System.currentTimeMillis() / 1000L;
         return checkSLTP();
 
+    }
+
+    public String isLong(){
+        return "long";
     }
 
     public boolean checkSLTP(){
@@ -149,27 +159,29 @@ public class Order {
     public Stock getStock(){
         return stock;
     }
-
-    public double getBuyInPrice(){
-        return buyPositionSize * buyPrice;
+    public double getBuyPrice(){
+        return buyPrice;
     }
-    public double getBuyPositionSize(){return buyPositionSize;}
+
+    public double getBuyEquity(){
+        return buyEquity;
+    }
+    public double getSharesBought(){return sharesBought;}
 
     public double[] getSltp() {
         return sltp;
     }
 
     public double getCurrentSellPrice(){
-        double fractionalSharesBought = buyPositionSize/buyPrice;
-        return currentPrice*fractionalSharesBought;
+        return currentPrice* sharesBought;
     }
 
     public double getPnL(){
-        return getBuyInPrice()-getCurrentSellPrice();
+        return getCurrentSellPrice()-buyEquity;
     }
 
     public double getPnLPercent(){
-        return getPnL()/getBuyInPrice();
+        return (getPnL()/buyEquity)*100;
     }
 
 

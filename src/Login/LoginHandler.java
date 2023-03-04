@@ -6,7 +6,7 @@ import GUI.MainScreen;
 import Market.Portfolio;
 
 public class LoginHandler {
-    Database db = new Database("src/data/login.txt", 64);
+    Database db = new Database("src/data/login.txt", 96);
     public LoginHandler() {
         // test the database works
 //        System.out.println("Database");
@@ -28,14 +28,14 @@ public class LoginHandler {
         if(usernameIndex != -1){
             if(db.validifyPassword(usernameIndex, password)){
                 GUIhandler guIhandler = new GUIhandler();
-                guIhandler.mainScreen(new Portfolio(username));
+                guIhandler.mainScreen(new Portfolio(username, db.getBalance(usernameIndex)));
                 System.out.println("login verified");
             }
         }
     }
 
     public void signup(String username, String password, double balance){
-        db.signup(username, password);
+        db.signup(username, password, balance);
         GUIhandler guIhandler = new GUIhandler();
         guIhandler.mainScreen(new Portfolio(balance, username));
     }

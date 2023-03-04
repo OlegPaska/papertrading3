@@ -65,6 +65,7 @@ public class Login extends JPanel{
             public void mouseClicked(MouseEvent e) {
                 try {
                     loginHandler.login(usernameTextField.getText(), passwordTextField.getText());
+                    frame.dispose();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -78,6 +79,7 @@ public class Login extends JPanel{
                                         try {
                                             if(!(usernameTextField.getText().length()>32||passwordTextField.getText().length()>32)) {
                                                 loginHandler.signup(usernameTextField.getText(), passwordTextField.getText(), Double.parseDouble(balanceTextField.getText()));
+                                                frame.dispose();
                                             }else{
                                                 warningMessage.setText("Invalid username or password: must be below 32 characters");
                                                 warningMessage.setVisible(true);

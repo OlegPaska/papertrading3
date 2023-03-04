@@ -16,6 +16,7 @@ public class Portfolio {
     //portfolio balance data will be stored as date
     double balance;
     String username;
+    EmailHandler emailHandler = new EmailHandler();
     LinkedList<Order> orders = new LinkedList<Order>();
 
     //only called when user first starts portfolio
@@ -25,7 +26,7 @@ public class Portfolio {
     }
 
     //only called when a user already has an account
-    public Portfolio(String username){
+    public Portfolio(String username, double balance){
         this.balance = balance;
         this.username = username;
         //get existing positions from file
@@ -51,23 +52,34 @@ public class Portfolio {
         }
     }
 
+    public void updatePrice(int i){
+        if(orders.get(i).updatePrice()){
+            emailHandler.send("position closed " + orders.get(i).getStock().getTicker() + ", £" + orders.get(i).getCurrentSellPrice()+", pnl: "+orders.get(i).getPnLPercent());
+            closeOrder(i);
+        }
+    }
+
     public void buyOrder(String ticker, double positionSize, double[] sltp){
         Order order = new Order(ticker.toLowerCase(), positionSize, sltp, username);
         orders.add(order);
         //buy at ask sell at bid
         balance -= positionSize;
+        emailHandler.send("New long position added: " + order.getStock().getTicker() + ", £" + order.getBuyPrice());
     }
 
     public void shortOrder(String ticker, double positionSize, double[] sltp){
         ShortOrder shortOrder = new ShortOrder(ticker.toLowerCase(), positionSize, sltp, username);
         orders.add(shortOrder);
         balance -= positionSize;
+        emailHandler.send("New short position added: " + shortOrder.getStock().getTicker() + ", £" + shortOrder.getBuyPrice());
     }
 
 
     public void closeOrder(int index){
-        balance += orders.get(index-1).closeOrder();
-        orders.remove(index-1);
+        emailHandler.send("position closed " + orders.get(index).getStock().getTicker() + ", £" + orders.get(index).getCurrentSellPrice()+", pnl: "+orders.get(index).getPnLPercent());
+        balance += orders.get(index).closeOrder(index);
+        orders.remove(index);
+
     }
 
     //todo: stretch goal: make all these stock variables private and use getters and setters
@@ -99,6 +111,10 @@ public class Portfolio {
 
     public double getBalance(){
         return balance;
+    }
+
+    public String getUsername(){
+        return username;
     }
 
 }

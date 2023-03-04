@@ -7,7 +7,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class APIhandler {
-    private boolean devMode = true;
+    private boolean devMode = false;
     String personalKey = "npwKekHzsZuwPJiANYfXismH4nz64g5kObc6K4i0";
 
 

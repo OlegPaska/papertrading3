@@ -11,6 +11,11 @@ public class ShortOrder extends Order{
         //setting variables
         super(ticker, positionSize, sltp, username);
 
+        double temp = sltp[0];
+        sltp[0] = sltp[1];
+        sltp[1] = temp;
+
+
 
     }
 
@@ -30,7 +35,7 @@ public class ShortOrder extends Order{
                 FileWriter fw = new FileWriter("src/data/orders.txt", true);
                 PrintWriter pw = new PrintWriter(fw)
         ) {
-            pw.println(ticker+","+buyPrice+","+buyTime+","+buyPositionSize+","+sltp[0]+","+sltp[1]+",short,"+username);
+            pw.println(ticker+","+buyPrice+","+buyTime+","+ sharesBought +","+sltp[0]+","+sltp[1]+",short,"+username);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -44,7 +49,7 @@ public class ShortOrder extends Order{
     }
 
     @Override
-    public double getPnLPercent() {
-        return super.getPnLPercent() *-1;
+    public String isLong() {
+        return "short";
     }
 }

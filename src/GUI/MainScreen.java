@@ -19,7 +19,8 @@ import java.util.LinkedList;
 public class MainScreen extends JPanel {
     Portfolio portfolio;
     Stock stock;
-    public MainScreen(Portfolio portfolio){
+    public MainScreen(JFrame frame, Portfolio portfolio){
+        DecimalFormat df = new DecimalFormat("#.##");
         this.portfolio = portfolio;
         final int[] scrollSetting = {0};
         LinkedList<Order> orders = portfolio.getOrders();
@@ -28,19 +29,27 @@ public class MainScreen extends JPanel {
         this.setPreferredSize(new Dimension(985,638));
         setLayout(null);
 
-        JLabel welcomeLabel = new JLabel("Welcome " + "<username>");
+        JLabel welcomeLabel = new JLabel("Welcome " + portfolio.getUsername());
         welcomeLabel.setBounds(15,15, 280, 25);
         welcomeLabel.setFont(new Font(welcomeLabel.getName(), Font.PLAIN, determineFontSize(welcomeLabel)));
 
         add(welcomeLabel);
 
-        JLabel balanceLabel = new JLabel("£" + portfolio.getBalance());
+        double totalPnl = 0;
+
+        for(int i = 0; i<orders.size();i++){
+            totalPnl += orders.get(i).getPnL();
+        }
+
+        //totalPnl = totalPnl/ portfolio.getBalance();
+
+        JLabel balanceLabel = new JLabel("£" + df.format(portfolio.getBalance()));
         balanceLabel.setBounds(15, 50, 215, 20);
         balanceLabel.setFont(new Font(balanceLabel.getName(), Font.PLAIN, determineFontSize(balanceLabel)));
         add(balanceLabel);
 
         //todo: get daily pnl and change this from red to green
-        JLabel pnlLabel = new JLabel("<pnl today>");
+        JLabel pnlLabel = new JLabel("£"+df.format(totalPnl));
         pnlLabel.setBounds(15,75, 125, 15);
         pnlLabel.setFont(new Font(pnlLabel.getName(), Font.PLAIN, determineFontSize(pnlLabel)));
         add(pnlLabel);
@@ -78,8 +87,10 @@ public class MainScreen extends JPanel {
         buyButton.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 try {
-                    GUIhandler guIhandler = new GUIhandler();
-                    guIhandler.OpenPosition(portfolio, true, stock);
+                    if(!(stock.getPrice()[1] == 0)) {
+                        GUIhandler guIhandler = new GUIhandler();
+                        guIhandler.OpenPosition(portfolio, true, stock, frame);
+                    }
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -97,8 +108,10 @@ public class MainScreen extends JPanel {
         shortButton.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 try {
-                    GUIhandler guIhandler = new GUIhandler();
-                    guIhandler.OpenPosition(portfolio, false, stock);
+                    if(!(stock.getPrice()[0] == 0)) {
+                        GUIhandler guIhandler = new GUIhandler();
+                        guIhandler.OpenPosition(portfolio, false, stock, frame);
+                    }
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -111,6 +124,15 @@ public class MainScreen extends JPanel {
         drawGraphButton.setBackground(Color.red);
         drawGraphButton.setContentAreaFilled(false);
         drawGraphButton.setBounds(625,150, 200, 75);
+        drawGraphButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Basic graph = new Basic(stock.getTicker());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
         add(drawGraphButton);
 
         JTextField searchBar = new JTextField();
@@ -118,6 +140,11 @@ public class MainScreen extends JPanel {
         searchBar.setBounds(25,110, 170, 30);
         add(searchBar);
 
+        JLabel marketClosed = new JLabel("Market closed - trading disabled");
+        marketClosed.setBounds(580, 0, 300,40);
+        marketClosed.setVisible(false);
+        marketClosed.setFont(new Font(marketClosed.getName(), Font.PLAIN, determineFontSize(marketClosed)));
+        add(marketClosed);
 
         JButton  searchButton = new JButton(""); // search icon
         searchButton.setIcon(new ImageIcon(new ImageIcon("src/data/search.png").getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));
@@ -131,9 +158,13 @@ public class MainScreen extends JPanel {
                     fullNameLabel.setText(dashboardData.get("name"));
                     fdaLabel.setText("50 Day Average: "+dashboardData.get("fda"));
                     averageVolumeLabel.setText("Average Volume: "+dashboardData.get("volume"));
-                    buyButton.setText("<html><h2>BUY</h2><h2>"+dashboardData.get("ask")+"</h2>");
-                    shortButton.setText("<html><h2>BUY</h2><h2>"+dashboardData.get("bid")+"</h2>");
-
+                    if(!dashboardData.get("ask").equals("0.0")) {
+                        marketClosed.setVisible(false);
+                        buyButton.setText("<html><h2>BUY</h2><h2>" + dashboardData.get("ask") + "</h2>");
+                        shortButton.setText("<html><h2>SELL</h2><h2>" + dashboardData.get("bid") + "</h2>");
+                    }else{
+                        marketClosed.setVisible(true);
+                    }
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -147,16 +178,25 @@ public class MainScreen extends JPanel {
         JButton[] positionLabel = new JButton[orders.size()];
         for(int i = 0; i<orders.size();i++){
             if(i<4) {
-                DecimalFormat df = new DecimalFormat("#.##");
+                portfolio.updatePrice(i);
+                df = new DecimalFormat("#.##");
                 String ticker = orders.get(i).getStock().getTicker().replaceAll("\"", "").toUpperCase();
                 String name = orders.get(i).getStock().getName().replaceAll("\"", "");
-                double buyPrice = orders.get(i).getBuyInPrice();
-                double sellPrice = orders.get(i).getCurrentSellPrice();
-                double pnl = (sellPrice / buyPrice) * 100 - 100;
+                double buyEquity = orders.get(i).getBuyEquity();
+                double pnl = orders.get(i).getPnL();
+                double pnLPercent = orders.get(i).getPnLPercent();
                 //todo make these go red and green
 
+                String pnlFont = "<font color='green'>";
+                String pnlPercentFont = "<font color='green'>";
+                if(pnl < 0){
+                    pnlFont = "<font color='red'>";
+                }
+                if(pnLPercent < 0){
+                    pnlPercentFont = "<font color='red'>";
+                }
 
-                positionLabel[i] = new JButton("<html><p>" + ticker + "</p><p>" + name + "</p><p>£" + df.format(buyPrice) + "  £" + df.format(sellPrice) + "  " + df.format(pnl) + "%</p></html>");
+                positionLabel[i] = new JButton("<html><p>" + ticker + "</p><p>" + name + "</p><p><font size=\"5\">£" + df.format(buyEquity) + "  "+pnlFont+"£" + df.format(pnl) + "  " + pnlPercentFont + df.format(pnLPercent) + "%</p></html>");
                 positionLabel[i].setFont(new Font(("positionLabel" + i), Font.PLAIN, 20));
                 positionLabel[i].setBounds(25, 150 + (105 * i), 200, 100);
                 positionLabel[i].setHorizontalAlignment(SwingConstants.LEFT);
@@ -167,6 +207,8 @@ public class MainScreen extends JPanel {
                     public void mouseClicked(MouseEvent e) {
                         try {
                             System.out.println("clicked on positionLabel " + lastI);
+                            GUIhandler guIhandler = new GUIhandler();
+                            guIhandler.PositionSettings(portfolio, orders.get(lastI), frame, lastI);
 
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -177,6 +219,53 @@ public class MainScreen extends JPanel {
                 add(positionLabel[i]);
             }
         }
+
+        /*
+        JButton[] specificPositionLabel = new JButton[orders.size()];
+        for(int i = 0; i<orders.size();i++){
+            if(i<4) {
+                orders.get(i).updatePrice();
+                df = new DecimalFormat("#.##");
+                String ticker = orders.get(i).getStock().getTicker().replaceAll("\"", "").toUpperCase();
+                String name = orders.get(i).getStock().getName().replaceAll("\"", "");
+                double buyEquity = orders.get(i).getBuyEquity();
+                double pnl = orders.get(i).getPnL();
+                double pnLPercent = orders.get(i).getPnLPercent();
+                //todo make these go red and green
+
+                String pnlFont = "<font color='green'>";
+                String pnlPercentFont = "<font color='green'>";
+                if(pnl < 0){
+                    pnlFont = "<font color='red'>";
+                }
+                if(pnLPercent < 0){
+                    pnlPercentFont = "<font color='red'>";
+                }
+
+                positionLabel[i] = new JButton("<html><p>" + ticker + "</p><p>" + name + "</p><p>£" + df.format(buyEquity) + "  "+pnlFont+"£" + df.format(pnl) + "  " + pnlPercentFont + df.format(pnLPercent) + "%</p></html>");
+                positionLabel[i].setFont(new Font(("positionLabel" + i), Font.PLAIN, 20));
+                positionLabel[i].setBounds(25, 150 + (105 * i), 200, 100);
+                positionLabel[i].setHorizontalAlignment(SwingConstants.LEFT);
+                positionLabel[i].setContentAreaFilled(false);
+
+                int lastI = i;
+                positionLabel[i].addMouseListener(new MouseAdapter() {
+                    public void mouseClicked(MouseEvent e) {
+                        try {
+                            System.out.println("clicked on positionLabel " + lastI);
+                            GUIhandler guIhandler = new GUIhandler();
+                            guIhandler.PositionSettings(portfolio, orders.get(lastI), frame, lastI);
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+
+                add(positionLabel[i]);
+            }
+        }
+         */
 
         JButton  upButton = new JButton(""); // search icon
         upButton.setIcon(new ImageIcon(new ImageIcon("src/data/arrowup.png").getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH))); // scaling the image properly so that there is no stretch
@@ -191,13 +280,23 @@ public class MainScreen extends JPanel {
 
                         for (int i = 0; i < 3 + orders.size(); i++) {
                             if (i < 4) {
+                                portfolio.updatePrice(i);
                                 DecimalFormat df = new DecimalFormat("#.##");
-                                String ticker = orders.get((scrollSetting[0]*4)+i).getStock().getTicker().replaceAll("\"", "").toUpperCase();
-                                String name = orders.get((scrollSetting[0]*4)+i).getStock().getName().replaceAll("\"", "");
-                                double buyPrice = orders.get((scrollSetting[0]*4)+i).getBuyInPrice();
-                                double sellPrice = orders.get((scrollSetting[0]*4)+i).getCurrentSellPrice();
-                                double pnl = (sellPrice / buyPrice) * 100 - 100;
-                                positionLabel[i].setText("<html><p>" + ticker + "</p><p>" + name + "</p><p>£" + df.format(buyPrice) + "  £" + df.format(sellPrice) + "  " + df.format(pnl) + "%</p></html>");
+                                String ticker = orders.get(i).getStock().getTicker().replaceAll("\"", "").toUpperCase();
+                                String name = orders.get(i).getStock().getName().replaceAll("\"", "");
+                                double buyEquity = orders.get(i).getBuyEquity();
+                                double pnl = orders.get(i).getPnL();
+                                double pnLPercent = orders.get(i).getPnLPercent();
+
+                                String pnlFont = "<font color='green'>";
+                                String pnlPercentFont = "<font color='green'>";
+                                if(pnl < 0){
+                                    pnlFont = "<font color='red'>";
+                                }
+                                if(pnLPercent < 0){
+                                    pnlPercentFont = "<font color='red'>";
+                                }
+                                positionLabel[i].setText("<html><p>" + ticker + "</p><p>" + name + "</p><p><font size=\"5\">£" + df.format(buyEquity) + "  "+pnlFont+"£" + df.format(pnl) + "  " + pnlPercentFont + df.format(pnLPercent) + "%</p></html>");
 
 
 
@@ -225,14 +324,22 @@ public class MainScreen extends JPanel {
                         System.out.println("going down");
                         for (int i = 0; i < 3 + orders.size(); i++) {
                             if (i < 4) {
+                                portfolio.updatePrice(i);
                                 DecimalFormat df = new DecimalFormat("#.##");
-                                String ticker = orders.get((scrollSetting[0]*4)+i).getStock().getTicker().replaceAll("\"", "").toUpperCase();
-                                String name = orders.get((scrollSetting[0]*4)+i).getStock().getName().replaceAll("\"", "");
-                                double buyPrice = orders.get((scrollSetting[0]*4)+i).getBuyInPrice();
-                                double sellPrice = orders.get((scrollSetting[0]*4)+i).getCurrentSellPrice();
-                                double pnl = (sellPrice / buyPrice) * 100 - 100;
-
-                                positionLabel[i].setText("<html><p>" + ticker + "</p><p>" + name + "</p><p>£" + df.format(buyPrice) + "  £" + df.format(sellPrice) + "  " + df.format(pnl) + "%</p></html>");
+                                String ticker = orders.get(i).getStock().getTicker().replaceAll("\"", "").toUpperCase();
+                                String name = orders.get(i).getStock().getName().replaceAll("\"", "");
+                                double buyEquity = orders.get(i).getBuyEquity();
+                                double pnl = orders.get(i).getPnL();
+                                double pnLPercent = orders.get(i).getPnLPercent();
+                                String pnlFont = "<font color='green'>";
+                                String pnlPercentFont = "<font color='green'>";
+                                if(pnl < 0){
+                                    pnlFont = "<font color='red'>";
+                                }
+                                if(pnLPercent < 0){
+                                    pnlPercentFont = "<font color='red'>";
+                                }
+                                positionLabel[i].setText("<html><p>" + ticker + "</p><p>" + name + "</p><p><font size=\"5\">£" + df.format(buyEquity) + "  "+pnlFont+"£" + df.format(pnl) + "  " + pnlPercentFont + df.format(pnLPercent) + "%</p></html>");
 
 
                                 System.out.println("done");
@@ -247,6 +354,46 @@ public class MainScreen extends JPanel {
         });
 
         add(downButton);
+
+        JButton refreshButton = new JButton();
+        refreshButton.setBounds(950, 5, 20, 20);
+        refreshButton.setIcon(new ImageIcon(new ImageIcon("src/data/reset.png").getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH)));
+        refreshButton.setContentAreaFilled(false);
+        refreshButton.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    System.out.println("refresh");
+                    for (int i = 0; i < orders.size(); i++) {
+                        if (i < 4) {
+                            portfolio.updatePrice(i);
+                            DecimalFormat df = new DecimalFormat("#.##");
+                            String ticker = orders.get(i).getStock().getTicker().replaceAll("\"", "").toUpperCase();
+                            String name = orders.get(i).getStock().getName().replaceAll("\"", "");
+                            double buyEquity = orders.get(i).getBuyEquity();
+                            double pnl = orders.get(i).getPnL();
+                            double pnLPercent = orders.get(i).getPnLPercent();
+                            String pnlFont = "<font color='green'>";
+                            String pnlPercentFont = "<font color='green'>";
+                            if(pnl < 0){
+                                pnlFont = "<font color='red'>";
+                            }
+                            if(pnLPercent < 0){
+                                pnlPercentFont = "<font color='red'>";
+                            }
+                            positionLabel[i].setText("<html><p>" + ticker + "</p><p>" + name + "</p><p><font size=\"5\">£" + df.format(buyEquity) + "  "+pnlFont+"£" + df.format(pnl) + "  " + pnlPercentFont + df.format(pnLPercent) + "%</p></html>");
+
+
+                            System.out.println("done");
+                        }
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        add(refreshButton);
 
     }
 
