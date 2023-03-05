@@ -16,7 +16,7 @@ public class EmailHandler {
         Content content = new Content("text/plain", message);
         Mail mail = new Mail(from, subject, to, content);
 
-        SendGrid sg = new SendGrid("SG.2eLSFu-WQUGDlDUIWARNWA.lDxSk4AGEdYLSsAX5W1p2dTWz0LKBmDZoddUC-CR2Xo");
+        SendGrid sg = new SendGrid("bollock");
         Request request = new Request();
         try {
             request.setMethod(Method.POST);

@@ -1,3 +1,2 @@
 oelg                            paska                           10000.0                         
 demo                            demo                            10000.0
-critd                           video                           10000.0                         
